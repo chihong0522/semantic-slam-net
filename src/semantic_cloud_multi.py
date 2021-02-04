@@ -287,7 +287,7 @@ class SemanticCloud:
             self.semantic_colors[i] = CMAP[pred_labels_resized + 1].astype(np.uint8)
         
         # Add colors confidances
-        for i in range(pred_confidences.shape[2]):
+        # for i in range(pred_confidences.shape[2]):
             self.confidences[i] = resize(pred_confidences[:,:,i], (self.img_height, self.img_width), mode='reflect',
                                          anti_aliasing=True, preserve_range=True)
 

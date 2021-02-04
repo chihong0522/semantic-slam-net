@@ -12,7 +12,7 @@ from torch.autograd import Variable
 import cv2
 from cv_bridge import CvBridge, CvBridgeError
 
-CMAP = np.load('/home/chihung/semantic_map_ws/src/semantic_cloud/include/multitask_refinenet/cmap_nyud.npy')
+CMAP = np.load('/home/chihung/semantic_map_ws/src/semantic_cloud/include/multitask_refinenet/cmap_nyud_bgr8.npy')
 DEPTH_COEFF = 5000.  # to convert into metres
 HAS_CUDA = torch.cuda.is_available()
 # HAS_CUDA = None
