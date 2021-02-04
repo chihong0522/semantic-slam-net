@@ -28,7 +28,7 @@ import cv2
 import torch
 from ptsemseg.models import get_model
 from ptsemseg.utils import convert_state_dict
-
+from multitask_refinenet.utils import inference, CMAP
 
 def color_map(N=256, normalized=False):
     """
@@ -268,20 +268,27 @@ class SemanticCloud:
         Do semantic prediction for bayesian fusion
         \param img (numpy array rgb8)
         """
-        class_probs = self.predict(img)
+        # class_probs = self.predict(img)
+        class_probs, predicted_depth = inference(img)
+
         # Take 3 best predictions and their confidences (probabilities)
-        pred_confidences, pred_labels = torch.topk(input=class_probs, k=3, dim=1, largest=True, sorted=True)
+        pred_confidences, pred_labels = torch.topk(input=class_probs, k=3, dim=2, largest=True, sorted=True)
         pred_labels = pred_labels.squeeze(0).cpu().numpy()
         pred_confidences = pred_confidences.squeeze(0).cpu().numpy()
+        
         # Resize predicted labels and confidences to original image size
-        for i in range(pred_labels.shape[0]):
-            pred_labels_resized = resize(pred_labels[i], (self.img_height, self.img_width), order=0, mode='reflect',
+        for i in range(pred_labels.shape[2]):
+            pred_labels_resized = resize(pred_labels[:,:,i], (self.img_height, self.img_width), order=0, mode='reflect',
                                          anti_aliasing=False, preserve_range=True)  # order = 0, nearest neighbour
             pred_labels_resized = pred_labels_resized.astype(np.int)
+
             # Add semantic class colors
-            self.semantic_colors[i] = decode_segmap(pred_labels_resized, self.n_classes, self.cmap)
-        for i in range(pred_confidences.shape[0]):
-            self.confidences[i] = resize(pred_confidences[i], (self.img_height, self.img_width), mode='reflect',
+            # self.semantic_colors[i] = decode_segmap(pred_labels_resized, self.n_classes, self.cmap)
+            self.semantic_colors[i] = CMAP[pred_labels_resized + 1].astype(np.uint8)
+        
+        # Add colors confidances
+        for i in range(pred_confidences.shape[2]):
+            self.confidences[i] = resize(pred_confidences[:,:,i], (self.img_height, self.img_width), mode='reflect',
                                          anti_aliasing=True, preserve_range=True)
 
     def predict(self, img):

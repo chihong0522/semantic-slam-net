@@ -1,0 +1,22 @@
+<launch>
+    <rosparam file="/home/chihung/multi-task-refinenet/ros/parmas/octomap_generator.yaml" command="load"/>
+    <node pkg="octomap_generator" type="octomap_generator" name="octomap_generator" output="screen"/>
+
+    
+    <node pkg="tf" type="static_transform_publisher" name="semantic_pcd_tf" 
+    args="0 0 0 -1 1 -1 1 camera_link semantic_pcd_frame 10" />
+    <!-- <node pkg="tf" type="static_transform_publisher" name="semantic_pcd_tf" 
+    args="0 0 0 0 0 0 camera_link semantic_pcd_frame 10" /> -->
+    
+    <rosparam file="/home/chihung/multi-task-refinenet/ros/parmas/semantic_cloud.yaml" command="load"/>
+    <node pkg="semantic_cloud" type="semantic_cloud.py" name="semantic_cloud" output="screen"/>
+
+    <!-- <node pkg="sceneNN_RGBD_publisher" type="sceneNN_depth_publisher" name="sceneNN_depth_publisher" output="screen"
+    args="/home/chihung/下載/SceneNN-dataset/scenenn/025/depth" /> -->
+
+    <node pkg="sceneNN_RGBD_publisher" type="sceneNN_seq_publisher" name="sceneNN_seq_publisher" output="screen"
+    args="/home/chihung/下載/SceneNN-dataset/scenenn/025/image" />
+
+    <!-- <node pkg="tf" type="static_transform_publisher" name="map_to_odom" args="0.0 0.0 0.0 0 0 0.0 base_link camera_link 10"/> -->
+
+</launch>
