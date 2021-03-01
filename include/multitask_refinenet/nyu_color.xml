@@ -1,44 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!-- unknown, obstacle, wall, floor, window, door, ceiling  -->
 <colormap>
-    <class id="0" text="unknown" color="0 0 0" />
-    <class id="1" text="wall" color="215 179 119" />
-    <class id="2" text="floor" color="244 244 249" />
-    <class id="3" text="cabinet" color="43 65 98" />
-    <class id="4" text="bed" color="214 162 173" />
-    <class id="5" text="chair" color="195 181 159" />
-    <class id="6" text="sofa" color="160 175 132" />
-    <class id="7" text="table" color="102 143 128" />
-    <class id="8" text="door" color="74 102 112" />
-    <class id="9" text="window" color="50 13 109" />
-    <class id="10" text="bookshelf" color="37 22 5" />
-    <class id="11" text="picture" color="255 191 183" />
-    <class id="12" text="counter" color="255 212 71" />
-    <class id="13" text="blinds" color="112 3 83" />
-    <class id="14" text="desk" color="0 129 175" />
-    <class id="15" text="shelves" color="189 198 103" />
-    <class id="16" text="curtain" color="245 221 144" />
-    <class id="17" text="dresser" color="246 142 95" />
-    <class id="18" text="pillow" color="247 108 94" />
-    <class id="19" text="mirror" color="153 93 129" />
-    <class id="20" text="floor mat" color="204 199 185" />
-    <class id="21" text="clothes" color="197 195 146" />
-    <class id="22" text="ceiling" color="115 165 128" />
-    <class id="23" text="books" color="66 129 164" />
-    <class id="24" text="refridgerator" color="44 54 63" />
-    <class id="25" text="television" color="60 73 63" />
-    <class id="26" text="paper" color="73 241 210" />
-    <class id="27" text="towel" color="175 62 77" />
-    <class id="28" text="shower curtain" color="238 227 171" />
-    <class id="29" text="box" color="119 82 83" />
-    <class id="30" text="whiteboard" color="72 191 132" />
-    <class id="31" text="person" color="86 54 53" />
-    <class id="32" text="night stand" color="114 109 168" />
-    <class id="33" text="toilet" color="208 163 191" />
-    <class id="34" text="sink" color="159 160 255" />
-    <class id="35" text="lamp" color="137 187 254" />
-    <class id="36" text="bathtub" color="241 80 37" />
-    <class id="37" text="bag" color="54 31 39" />
-    <class id="38" text="otherstructure" color="110 164 191" />
-    <class id="39" text="otherfurniture" color="254 215 102" />
-    <class id="40" text="otherprop" color="255 192 159" />
+    <class id="0" text="unknown" color="0 0 0" sem_map_class="unknown" sem_map_color="0 0 0"/>
+    <class id="1" text="wall" color="215 179 119" sem_map_class="wall" sem_map_color="215 179 119"/>
+    <class id="2" text="floor" color="244 244 249" sem_map_class="floor" sem_map_color="244 244 249"/>
+    <class id="3" text="cabinet" color="43 65 98" sem_map_class="obstacle" sem_map_color="54 25 245"/>
+    <class id="4" text="bed" color="214 162 173" sem_map_class="obstacle" sem_map_color="54 25 245"/>
+    <class id="5" text="chair" color="195 181 159" sem_map_class="obstacle" sem_map_color="54 25 245"/>
+    <class id="6" text="sofa" color="160 175 132" sem_map_class="obstacle" sem_map_color="54 25 245"/>
+    <class id="7" text="table" color="102 143 128" sem_map_class="obstacle" sem_map_color="54 25 245"/>
+    <class id="8" text="door" color="74 102 112" sem_map_class="door" sem_map_color="74 102 112"/>
+    <class id="9" text="window" color="50 13 109" sem_map_class="window" sem_map_color="50 13 109"/>
+    <class id="10" text="bookshelf" color="37 22 5" sem_map_class="obstacle" sem_map_color="54 25 245"/>
+    <class id="11" text="picture" color="255 191 183" sem_map_class="obstacle" sem_map_color="54 25 245"/>
+    <class id="12" text="counter" color="255 212 71" sem_map_class="obstacle" sem_map_color="54 25 245"/>
+    <class id="13" text="blinds" color="112 3 83" sem_map_class="obstacle" sem_map_color="54 25 245"/>
+    <class id="14" text="desk" color="0 129 175" sem_map_class="obstacle" sem_map_color="54 25 245"/>
+    <class id="15" text="shelves" color="189 198 103" sem_map_class="obstacle" sem_map_color="54 25 245"/>
+    <class id="16" text="curtain" color="245 221 144" sem_map_class="obstacle" sem_map_color="54 25 245"/>
+    <class id="17" text="dresser" color="246 142 95" sem_map_class="obstacle" sem_map_color="54 25 245"/>
+    <class id="18" text="pillow" color="247 108 94" sem_map_class="obstacle" sem_map_color="54 25 245"/>
+    <class id="19" text="mirror" color="153 93 129" sem_map_class="obstacle" sem_map_color="54 25 245"/>
+    <class id="20" text="floor mat" color="204 199 185" sem_map_class="obstacle" sem_map_color="54 25 245"/>
+    <class id="21" text="clothes" color="197 195 146" sem_map_class="obstacle" sem_map_color="54 25 245"/>
+    <class id="22" text="ceiling" color="115 165 128" sem_map_class="ceiling" sem_map_color="115 165 128"/>
+    <class id="23" text="books" color="66 129 164" sem_map_class="obstacle" sem_map_color="54 25 245"/>
+    <class id="24" text="refridgerator" color="44 54 63" sem_map_class="obstacle" sem_map_color="54 25 245"/>
+    <class id="25" text="television" color="60 73 63" sem_map_class="obstacle" sem_map_color="54 25 245"/>
+    <class id="26" text="paper" color="73 241 210" sem_map_class="obstacle" sem_map_color="54 25 245"/>
+    <class id="27" text="towel" color="175 62 77" sem_map_class="obstacle" sem_map_color="54 25 245"/>
+    <class id="28" text="shower curtain" color="238 227 171" sem_map_class="obstacle" sem_map_color="54 25 245"/>
+    <class id="29" text="box" color="119 82 83" sem_map_class="obstacle" sem_map_color="54 25 245"/>
+    <class id="30" text="whiteboard" color="72 191 132" sem_map_class="obstacle" sem_map_color="54 25 245"/>
+    <class id="31" text="person" color="86 54 53" sem_map_class="obstacle" sem_map_color="54 25 245"/>
+    <class id="32" text="night stand" color="114 109 168" sem_map_class="obstacle" sem_map_color="54 25 245"/>
+    <class id="33" text="toilet" color="208 163 191" sem_map_class="obstacle" sem_map_color="54 25 245"/>
+    <class id="34" text="sink" color="159 160 255" sem_map_class="obstacle" sem_map_color="54 25 245"/>
+    <class id="35" text="lamp" color="137 187 254" sem_map_class="obstacle" sem_map_color="54 25 245"/>
+    <class id="36" text="bathtub" color="241 80 37" sem_map_class="obstacle" sem_map_color="54 25 245"/>
+    <class id="37" text="bag" color="54 31 39" sem_map_class="obstacle" sem_map_color="54 25 245"/>
+    <class id="38" text="otherstructure" color="110 164 191" sem_map_class="unknown" sem_map_color="0 0 0"/>
+    <class id="39" text="otherfurniture" color="254 215 102" sem_map_class="unknown" sem_map_color="0 0 0"/>
+    <class id="40" text="otherprop" color="255 192 159" sem_map_class="unknown" sem_map_color="0 0 0"/>
 </colormap>

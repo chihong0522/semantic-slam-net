@@ -11,8 +11,8 @@ camera:
 semantic_pcl:
   color_image_topic: "/camera/color/image_raw"
   depth_image_topic: "/camera/aligned_depth_to_color/image_raw"
-  # color_image_topic: "/test/camera/color/image_raw"
-  # depth_image_topic: "/test/camera/depth/image_raw"
+  # color_image_topic: "/camera/rgb/image_raw"
+  # depth_image_topic: "/camera/depth/image_raw"
   point_type: 2
   frame_id: "/semantic_pcd_frame"
   # frame_id: "/camera_rgb_frame"
