@@ -19,4 +19,4 @@ semantic_pcl:
   # dataset: "ade20k" 
   # model_path: "/home/chihung/multi-task-refinenet/ros/models/pspnet_50_ade20k.pth"
   dataset: "sunrgbd" 
-  model_path: "/home/chihung/multi-task-refinenet/ros/models/pspnet_sunrgbd_best_model180625_5k.pth"
+  model_path: "/home/nvidia/multi-task-refinenet/ros/models/pspnet_sunrgbd_best_model180625_5k.pth"

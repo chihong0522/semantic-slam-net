@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
 """
 Take in an image (rgb or rgb-d)
 Use CNN to do semantic segmantation
@@ -10,25 +10,28 @@ Out put a cloud point with semantic color registered
 from __future__ import division
 from __future__ import print_function
 
-import sys
 import rospy
 from sensor_msgs.msg import Image
-from cv_bridge import CvBridge, CvBridgeError
 
 import numpy as np
 
 from sensor_msgs.msg import PointCloud2
-from color_pcl_generator import PointType, ColorPclGenerator
+from color_pcl_generator.color_pcl_generator import PointType, ColorPclGenerator
 import message_filters
 import time
 
 from skimage.transform import resize
-import cv2
 
 import torch
 from ptsemseg.models import get_model
 from ptsemseg.utils import convert_state_dict
 from multitask_refinenet.utils import inference, CMAP
+
+import sys
+sys.path.remove('/opt/ros/kinetic/lib/python2.7/dist-packages')
+import cv2
+from cv_bridge import CvBridge, CvBridgeError
+sys.path.append('/opt/ros/kinetic/lib/python2.7/dist-packages')
 
 def color_map(N=256, normalized=False):
     """
@@ -107,33 +110,33 @@ class SemanticCloud:
         # Get image size
         self.img_width, self.img_height = rospy.get_param('/camera/width'), rospy.get_param('/camera/height')
         # Set up CNN is use semantics
-        if self.point_type is not PointType.COLOR:
-            print('Setting up CNN model...')
-            # Set device
-            self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-            # Get dataset
-            dataset = rospy.get_param('/semantic_pcl/dataset')
-            # Setup model
-            model_name = 'pspnet'
-            model_path = rospy.get_param('/semantic_pcl/model_path')
-            if dataset == 'sunrgbd':  # If use version fine tuned on sunrgbd dataset
-                self.n_classes = 38  # Semantic class number
-                self.model = get_model(model_name, self.n_classes, version='sunrgbd_res50')
-                state = torch.load(model_path,map_location='cuda:0')
-                self.model.load_state_dict(state)
-                self.cnn_input_size = (321, 321)
-                self.mean = np.array([104.00699, 116.66877, 122.67892])  # Mean value of dataset
-            elif dataset == 'ade20k':
-                self.n_classes = 150  # Semantic class number
-                self.model = get_model(model_name, self.n_classes, version='ade20k')
-                state = torch.load(model_path)
-                self.model.load_state_dict(
-                    convert_state_dict(state['model_state']))  # Remove 'module' from dictionary keys
-                self.cnn_input_size = (473, 473)
-                self.mean = np.array([104.00699, 116.66877, 122.67892])  # Mean value of dataset
-            self.model = self.model.to(self.device)
-            self.model.eval()
-            self.cmap = color_map(N=self.n_classes, normalized=False)  # Color map for semantic classes
+        # if self.point_type is not PointType.COLOR:
+        #     print('Setting up CNN model...')
+        #     # Set device
+        #     self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+        #     # Get dataset
+        #     dataset = rospy.get_param('/semantic_pcl/dataset')
+        #     # Setup model
+        #     model_name = 'pspnet'
+        #     model_path = rospy.get_param('/semantic_pcl/model_path')
+        #     if dataset == 'sunrgbd':  # If use version fine tuned on sunrgbd dataset
+        #         self.n_classes = 38  # Semantic class number
+        #         self.model = get_model(model_name, self.n_classes, version='sunrgbd_res50')
+        #         state = torch.load(model_path,map_location='cuda:0')
+        #         self.model.load_state_dict(state)
+        #         self.cnn_input_size = (321, 321)
+        #         self.mean = np.array([104.00699, 116.66877, 122.67892])  # Mean value of dataset
+        #     elif dataset == 'ade20k':
+        #         self.n_classes = 150  # Semantic class number
+        #         self.model = get_model(model_name, self.n_classes, version='ade20k')
+        #         state = torch.load(model_path)
+        #         self.model.load_state_dict(
+        #             convert_state_dict(state['model_state']))  # Remove 'module' from dictionary keys
+        #         self.cnn_input_size = (473, 473)
+        #         self.mean = np.array([104.00699, 116.66877, 122.67892])  # Mean value of dataset
+        #     self.model = self.model.to(self.device)
+        #     self.model.eval()
+        #     self.cmap = color_map(N=self.n_classes, normalized=False)  # Color map for semantic classes
         # Declare array containers
         if self.point_type is PointType.SEMANTICS_BAYESIAN:
             self.semantic_colors = np.zeros((3, self.img_height, self.img_width, 3),

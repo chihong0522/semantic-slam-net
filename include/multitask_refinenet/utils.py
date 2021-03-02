@@ -6,14 +6,14 @@ import io
 import json
 import sys
 
-from models import net
+from .models import net
 import torch, torchvision
 from torch.autograd import Variable
 import cv2
 from cv_bridge import CvBridge, CvBridgeError
 
-CMAP = np.load('/home/chihung/semantic_map_ws/src/semantic_cloud/include/multitask_refinenet/cmap_nyud_bgr8.npy')
-# CMAP = np.load('/home/chihung/semantic_map_ws/src/semantic_cloud/include/multitask_refinenet/cmap_nyud_to_sceneNN_bgr8.npy')
+CMAP = np.load('/home/nvidia/semantic_slam_ws/src/semantic_cloud/include/multitask_refinenet/cmap_nyud_bgr8.npy')
+# CMAP = np.load('/home/nvidia/semantic_slam_ws/src/semantic_cloud/include/multitask_refinenet/cmap_nyud_to_sceneNN_bgr8.npy')
 DEPTH_COEFF = 5000.  # to convert into metres
 HAS_CUDA = torch.cuda.is_available()
 # HAS_CUDA = None
@@ -34,11 +34,11 @@ if HAS_CUDA:
     _ = model.cuda()
 _ = model.eval()
 
-ckpt = torch.load('/home/chihung/semantic_map_ws/src/semantic_cloud/weights/ExpNYUD_joint.ckpt')
+ckpt = torch.load('/home/nvidia/semantic_slam_ws/src/semantic_cloud/weights/ExpNYUD_joint.ckpt')
 model.load_state_dict(ckpt['state_dict'])
 
 def inference(img):
-
+    start_ = time.time()
     with torch.no_grad():
         img_var = Variable(torch.from_numpy(prepare_img(img).transpose(2, 0, 1)[None]), requires_grad=False).float()
         if HAS_CUDA:
@@ -52,6 +52,8 @@ def inference(img):
                             interpolation=cv2.INTER_CUBIC)
     segm_probs = torch.nn.functional.softmax(torch.from_numpy(segm),2) 
     depth_ = np.abs(depth)
+    end_ = time.time()
+    print("Inference semantic image FPS=", 1/(end_-start_))
 
     return segm_probs, depth_
 

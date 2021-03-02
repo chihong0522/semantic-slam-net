@@ -10,4 +10,4 @@ octomap:
     occupancy_thres: 0.9
     prob_hit: 0.7
     prob_miss: 0.4
-    save_path : "/home/chihung/SceneNN-dataset/scenenn/map/sem_pred.ot"
+    save_path : "/home/nvidia/semantic_slam_ws/map/sem_pred.ot"

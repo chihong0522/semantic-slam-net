@@ -1,5 +1,5 @@
 <launch>
-    <rosparam file="/home/chihung/semantic_map_ws/src/semantic_cloud/ros/parmas/octomap_generator.yaml" command="load"/>
+    <rosparam file="/home/nvidia/semantic_slam_ws/src/semantic_cloud/ros/parmas/octomap_generator.yaml" command="load"/>
     <node pkg="octomap_generator" type="octomap_generator" name="octomap_generator" output="screen"/>
 
     
@@ -8,13 +8,13 @@
     <!-- <node pkg="tf" type="static_transform_publisher" name="semantic_pcd_tf" 
     args="0 0 0 0 0 0 camera_link semantic_pcd_frame 10" /> -->
     
-    <rosparam file="/home/chihung/semantic_map_ws/src/semantic_cloud/ros/parmas/semantic_cloud.yaml" command="load"/>
+    <rosparam file="/home/nvidia/semantic_slam_ws/src/semantic_cloud/ros/parmas/semantic_cloud.yaml" command="load"/>
     <node pkg="semantic_cloud" type="semantic_cloud_multi.py" name="semantic_cloud" output="screen"/>
     
-    <node pkg="sceneNN_RGBD_publisher" type="sceneNN_seq_publisher" name="sceneNN_seq_publisher" output="screen"
-    args="/home/chihung/SceneNN-dataset/scenenn/263/image" />
+    <!-- <node pkg="sceneNN_RGBD_publisher" type="sceneNN_seq_publisher" name="sceneNN_seq_publisher" output="screen"
+    args="/home/nvidia/SceneNN-dataset/scenenn/263/image" /> -->
 
-    <node name="rviz" pkg="rviz" type="rviz" /> 
+    <!-- <node name="rviz" pkg="rviz" type="rviz" />  -->
 
     <!-- <node pkg="tf" type="static_transform_publisher" name="map_to_odom" args="0.0 0.0 0.0 0 0 0.0 base_link camera_link 10"/> -->
 
