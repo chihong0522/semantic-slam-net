@@ -269,10 +269,7 @@ class SemanticCloud:
         \param img (numpy array rgb8)
         """
         # class_probs = self.predict(img)
-        class_probs, predicted_depth = inference(img)
-
-        # Take 3 best predictions and their confidences (probabilities)
-        pred_confidences, pred_labels = torch.topk(input=class_probs, k=3, dim=2, largest=True, sorted=True)
+        pred_confidences, pred_labels, predicted_depth = inference(img)
         pred_labels = pred_labels.squeeze(0).cpu().numpy()
         pred_confidences = pred_confidences.squeeze(0).cpu().numpy()
         

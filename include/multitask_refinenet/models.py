@@ -144,6 +144,7 @@ class Net(nn.Module):
         self.segm = conv3x3(256, num_classes, bias=True)
         self.relu = nn.ReLU6(inplace=True)
 
+
         if self.num_tasks == 3:
             self.pre_normal = conv1x1(256, 256, groups=256, bias=False)
             self.normal = conv3x3(256, 3, bias=True)
@@ -185,6 +186,7 @@ class Net(nn.Module):
         out_segm = self.pre_segm(l3)
         out_segm = self.relu(out_segm)
         out_segm = self.segm(out_segm)
+        out_segm = nn.functional.softmax(out_segm, dim=1)
 
         out_d = self.pre_depth(l3)
         out_d = self.relu(out_d)
