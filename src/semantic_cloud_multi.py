@@ -270,23 +270,23 @@ class SemanticCloud:
         """
         # class_probs = self.predict(img)
         pred_confidences, pred_labels, predicted_depth = inference(img)
-        pred_labels = pred_labels.squeeze(0).cpu().numpy()
-        pred_confidences = pred_confidences.squeeze(0).cpu().numpy()
+        pred_labels = pred_labels.cpu().numpy()
+        pred_confidences = pred_confidences.cpu().numpy()
         
-        # Resize predicted labels and confidences to original image size
         for i in range(pred_labels.shape[2]):
-            pred_labels_resized = resize(pred_labels[:,:,i], (self.img_height, self.img_width), order=0, mode='reflect',
-                                         anti_aliasing=False, preserve_range=True)  # order = 0, nearest neighbour
-            pred_labels_resized = pred_labels_resized.astype(np.int)
+            # pred_labels_resized = resize(pred_labels[:,:,i], (self.img_height, self.img_width), order=0, mode='reflect',
+            #                              anti_aliasing=False, preserve_range=True)  # order = 0, nearest neighbour
+            # pred_labels_resized = pred_labels_resized.astype(np.int)
+
+            pred_labels_resized  = pred_labels[:,:,i].astype(np.int)
 
             # Add semantic class colors
-            # self.semantic_colors[i] = decode_segmap(pred_labels_resized, self.n_classes, self.cmap)
             self.semantic_colors[i] = CMAP[pred_labels_resized + 1].astype(np.uint8)
         
-        # Add colors confidances
-        # for i in range(pred_confidences.shape[2]):
-            self.confidences[i] = resize(pred_confidences[:,:,i], (self.img_height, self.img_width), mode='reflect',
-                                         anti_aliasing=True, preserve_range=True)
+            # Add colors confidances
+            # self.confidences[i] = resize(pred_confidences[:,:,i], (self.img_height, self.img_width), mode='reflect',
+            #                              anti_aliasing=True, preserve_range=True)
+            self.confidences[i] = pred_confidences[:,:,i]
 
     def predict(self, img):
         """
