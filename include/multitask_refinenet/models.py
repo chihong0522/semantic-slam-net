@@ -185,6 +185,7 @@ class Net(nn.Module):
         out_segm = self.pre_segm(l3)
         out_segm = self.relu(out_segm)
         out_segm = self.segm(out_segm)
+        out_segm = nn.functional.softmax(out_segm, dim=1)
 
         out_d = self.pre_depth(l3)
         out_d = self.relu(out_d)
@@ -223,3 +224,18 @@ def net(num_classes, num_tasks):
     model = Net(num_classes, num_tasks)
     return model
 
+def quantized_net(num_classes, num_tasks):
+    """Constructs the quantized network.
+
+    Args:
+        num_classes (int): the number of classes for the segmentation head to output.
+        num_tasks (int): the number of tasks, either 2 - segm + depth, or 3 - segm + depth + normals
+
+    """
+    model = Net(num_classes, num_tasks)
+    quantized_model = torch.quantization.quantize_dynamic(
+        model,  # the original model
+        {nn.Linear, nn.Conv1d, nn.Conv3d},  # a set of layers to dynamically quantize
+        dtype=torch.qint8
+        )
+    return quantized_model

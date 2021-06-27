@@ -25,7 +25,7 @@ from skimage.transform import resize
 import torch
 from ptsemseg.models import get_model
 from ptsemseg.utils import convert_state_dict
-from multitask_refinenet.utils import inference, CMAP
+from multitask_refinenet.utils import MultitaskRefinenet, CMAP
 
 import sys
 sys.path.remove('/opt/ros/kinetic/lib/python2.7/dist-packages')
@@ -89,6 +89,7 @@ class SemanticCloud:
     """
 
     def __init__(self, gen_pcl=True):
+        self.multitask_refinenet = MultitaskRefinenet(use_quantized_model=False)
         """
         Constructor
         \param gen_pcl (bool) whether generate point cloud, if set to true the node will subscribe to depth image
@@ -109,6 +110,7 @@ class SemanticCloud:
             return
         # Get image size
         self.img_width, self.img_height = rospy.get_param('/camera/width'), rospy.get_param('/camera/height')
+        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         # Set up CNN is use semantics
         # if self.point_type is not PointType.COLOR:
         #     print('Setting up CNN model...')
@@ -173,6 +175,9 @@ class SemanticCloud:
         else:
             self.image_sub = rospy.Subscriber(rospy.get_param('/semantic_pcl/color_image_topic'), Image,
                                               self.color_callback, queue_size=1, buff_size=30 * 480 * 640)
+
+
+        self.nyud_cmap = torch.from_numpy(np.load(rospy.get_param('/semantic_pcl/CMAP_path'))).to(self.device)
         print('Ready.')
 
     def color_callback(self, color_img_ros):
@@ -213,6 +218,7 @@ class SemanticCloud:
             depth_img = self.bridge.imgmsg_to_cv2(depth_img_ros, "32FC1")
         except CvBridgeError as e:
             print(e)
+            return
         # Resize depth
         if depth_img.shape[0] is not self.img_height or depth_img.shape[1] is not self.img_width:
             depth_img = resize(depth_img, (self.img_height, self.img_width), order=0, mode='reflect',
@@ -220,29 +226,28 @@ class SemanticCloud:
             depth_img = depth_img.astype(np.float32)
         if self.point_type is PointType.COLOR:
             cloud_ros = self.cloud_generator.generate_cloud_color(color_img, depth_img, color_img_ros.header.stamp)
-        else:
-            # Do semantic segmantation
-            if self.point_type is PointType.SEMANTICS_MAX:
-                semantic_color, pred_confidence = self.predict_max(color_img)
-                cloud_ros = self.cloud_generator.generate_cloud_semantic_max(color_img, depth_img, semantic_color,
-                                                                             pred_confidence,
-                                                                             color_img_ros.header.stamp)
+        
+        elif self.point_type is PointType.SEMANTICS_MAX:
+            semantic_color, pred_confidence = self.predict_max(color_img)
+            cloud_ros = self.cloud_generator.generate_cloud_semantic_max(color_img, depth_img, semantic_color,
+                                                                            pred_confidence,
+                                                                            color_img_ros.header.stamp)
 
-            elif self.point_type is PointType.SEMANTICS_BAYESIAN:
-                self.predict_bayesian(color_img)
-                # Produce point cloud with rgb colors, semantic colors and confidences
-                cloud_ros = self.cloud_generator.generate_cloud_semantic_bayesian(color_img, depth_img,
+        if self.point_type is PointType.SEMANTICS_BAYESIAN:
+            self.predict_bayesian_tensor(color_img)
+            # Produce point cloud with rgb colors, semantic colors and confidences
+            cloud_ros = self.cloud_generator.generate_cloud_semantic_bayesian(color_img, depth_img,
                                                                                   self.semantic_colors,
                                                                                   self.confidences,
                                                                                   color_img_ros.header.stamp)
 
-            # Publish semantic image
-            if self.sem_img_pub.get_num_connections() > 0:
-                if self.point_type is PointType.SEMANTICS_MAX:
-                    semantic_color_msg = self.bridge.cv2_to_imgmsg(semantic_color, encoding="bgr8")
-                else:
-                    semantic_color_msg = self.bridge.cv2_to_imgmsg(self.semantic_colors[0], encoding="bgr8")
-                self.sem_img_pub.publish(semantic_color_msg)
+        # Publish semantic image
+        if self.sem_img_pub.get_num_connections() > 0:
+            if self.point_type is PointType.SEMANTICS_MAX:
+                semantic_color_msg = self.bridge.cv2_to_imgmsg(semantic_color, encoding="bgr8")
+            else:
+                semantic_color_msg = self.bridge.cv2_to_imgmsg(self.semantic_colors[0], encoding="bgr8")
+            self.sem_img_pub.publish(semantic_color_msg)
 
         # Publish point cloud
         self.pcl_pub.publish(cloud_ros)
@@ -271,28 +276,49 @@ class SemanticCloud:
         Do semantic prediction for bayesian fusion
         \param img (numpy array rgb8)
         """
-        # class_probs = self.predict(img)
-        class_probs, predicted_depth = inference(img)
-
-        # Take 3 best predictions and their confidences (probabilities)
-        pred_confidences, pred_labels = torch.topk(input=class_probs, k=3, dim=2, largest=True, sorted=True)
-        pred_labels = pred_labels.squeeze(0).cpu().numpy()
-        pred_confidences = pred_confidences.squeeze(0).cpu().numpy()
+        pred_confidences, pred_labels, predicted_depth = self.multitask_refinenet.inference_conf(img)
+        t1= time.time()
         
-        # Resize predicted labels and confidences to original image size
+        pred_labels = pred_labels.cpu().numpy()
+        pred_confidences = pred_confidences.cpu().numpy()
+        
+
+        t2= time.time()
         for i in range(pred_labels.shape[2]):
-            pred_labels_resized = resize(pred_labels[:,:,i], (self.img_height, self.img_width), order=0, mode='reflect',
-                                         anti_aliasing=False, preserve_range=True)  # order = 0, nearest neighbour
-            pred_labels_resized = pred_labels_resized.astype(np.int)
+            # pred_labels_resized = resize(pred_labels[:,:,i], (self.img_height, self.img_width), order=0, mode='reflect',
+            #                              anti_aliasing=False, preserve_range=True)  # order = 0, nearest neighbour
+            # pred_labels_resized = pred_labels_resized.astype(np.int)
+            pred_labels_int  = pred_labels[:,:,i].astype(np.int)
 
             # Add semantic class colors
-            # self.semantic_colors[i] = decode_segmap(pred_labels_resized, self.n_classes, self.cmap)
-            self.semantic_colors[i] = CMAP[pred_labels_resized + 1].astype(np.uint8)
+            self.semantic_colors[i] = CMAP[pred_labels_int + 1].astype(np.uint8)
         
-        # Add colors confidances
-        # for i in range(pred_confidences.shape[2]):
-            self.confidences[i] = resize(pred_confidences[:,:,i], (self.img_height, self.img_width), mode='reflect',
-                                         anti_aliasing=True, preserve_range=True)
+            # Add colors confidances
+            # self.confidences[i] = resize(pred_confidences[:,:,i], (self.img_height, self.img_width), mode='reflect',
+            #                              anti_aliasing=True, preserve_range=True)
+            self.confidences[i] = pred_confidences[:,:,i]
+        t3 = time.time()
+        print("t2-t1=",(t2-t1)*1000) 
+        print("t3-t2=",(t3-t2)*1000)
+
+    def predict_bayesian_tensor(self, img):
+        """
+        Do semantic prediction for bayesian fusion
+        \param img (numpy array rgb8)
+        """
+        # class_probs = self.predict(img)
+        pred_confidences, pred_labels, predicted_depth = self.multitask_refinenet.inference_conf(img)
+        t2 = time.time()
+        for i in range(pred_labels.shape[2]):
+
+            pred_labels_resized  = pred_labels[:,:,i].long() +1
+            flatten_pred_labels = torch.flatten(pred_labels_resized)
+            colors_tensor = torch.index_select(self.nyud_cmap, 0, flatten_pred_labels)
+            self.semantic_colors[i] = torch.reshape(colors_tensor, (480,640,3)).cpu().numpy()
+            self.confidences[i] = pred_confidences[:,:,i].cpu().numpy()
+
+        t3 = time.time()
+        print("TX2 tensor address speed=",1000*(t3-t2), "(miliseconds)")
 
     def predict(self, img):
         """

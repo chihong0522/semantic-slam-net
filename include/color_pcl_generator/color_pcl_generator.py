@@ -168,14 +168,14 @@ class ColorPclGenerator:
         \param confidences (a list of numpy array float32) confidence maps of associated semantic colors, ordered by values (desc)
         \stamp (ros time stamp)
         """
-        self.generate_cloud_data_common(bgr_img, depth_img)
+        self.generate_cloud_data_common(semantic_colors[0], depth_img)
         # Transform semantic colors
         for i in range(self.num_semantic_colors):
             self.semantic_colors_vect[:,4*i:4*i+1] = semantic_colors[i][:,:,0].reshape(-1,1)
             self.semantic_colors_vect[:,4*i+1:4*i+2] = semantic_colors[i][:,:,1].reshape(-1,1)
             self.semantic_colors_vect[:,4*i+2:4*i+3] = semantic_colors[i][:,:,2].reshape(-1,1)
         # Transform class confidence
-        for i in range(self.num_semantic_colors):
+        # for i in range(self.num_semantic_colors):
             self.confidences_vect[:,i:i+1] = confidences[i].reshape(-1,1)
         # Concatenate data
         self.ros_data[:,8:8+self.num_semantic_colors] = self.semantic_colors_vect.view('<f4')

@@ -9,8 +9,8 @@ camera:
   height: 480
 
 semantic_pcl:
-  color_image_topic: "/camera/color/image_raw"
-  depth_image_topic: "/camera/aligned_depth_to_color/image_raw"
+  color_image_topic: "/camera/color/image_raw" #FPS=26
+  depth_image_topic: "/camera/aligned_depth_to_color/image_raw" #FPS=14
   # color_image_topic: "/camera/rgb/image_raw"
   # depth_image_topic: "/camera/depth/image_raw"
   point_type: 2
@@ -20,3 +20,4 @@ semantic_pcl:
   # model_path: "/home/chihung/multi-task-refinenet/ros/models/pspnet_50_ade20k.pth"
   dataset: "sunrgbd" 
   model_path: "/home/nvidia/multi-task-refinenet/ros/models/pspnet_sunrgbd_best_model180625_5k.pth"
+  CMAP_path: '/home/nvidia/semantic_slam_ws/src/semantic_cloud/include/multitask_refinenet/cmap_nyud_bgr8.npy'

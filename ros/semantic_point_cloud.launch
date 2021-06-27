@@ -2,7 +2,7 @@
     <node pkg="tf" type="static_transform_publisher" name="semantic_pcd_tf" 
     args="0 0 0 -1 1 -1 1 camera_link semantic_pcd_frame 10" />
     
-    <rosparam file="/home/chihung/multi-task-refinenet/ros/parmas/semantic_cloud.yaml" command="load"/>
+    <rosparam file="/home/nvidia/multi-task-refinenet/ros/parmas/semantic_cloud.yaml" command="load"/>
     <node pkg="semantic_cloud" type="semantic_cloud_multi.py" name="semantic_cloud" output="screen"/>
 
 </launch>

@@ -3,7 +3,7 @@ octomap:
     tree_type: 2
     world_frame_id: "/map"
     resolution: 0.01
-    max_range: 3.0
+    max_range: 5.0
     raycast_range: 2.0
     clamping_thres_min: 0.12
     clamping_thres_max: 0.97
